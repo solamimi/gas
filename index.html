@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <title>Solamimi-web</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/locales/bootstrap-datepicker.ja.min.js" charset="UTF-8"></script>
+  <?!= HtmlService.createHtmlOutputFromFile('js').getContent(); ?>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+  <link id="bsdp-css" href="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet">
+  <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
+</head>
+
+<body id="app">
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+<div class="container">
+<a class="navbar-brand" href="#">SolaMimi-web</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="ナビゲーションの切替">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="navbar">
+<ul class="navbar-nav mr-auto">
+<li class="nav-item"><a class="nav-link" href="/listeneds">聞いた</a></li>
+</ul>
+</div>
+
+</div>
+</nav>
+
+<div class="container">
+<h2>Solamimi</h2>
+
+<div class="card bg-light mb-3"><div class="card-body">
+  <form class="simple_form new_listened_search" id="new_listened_search" novalidate="novalidate" action="/listeneds/search" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="AVLBnr8LxUBASSCV+Wa1tmfHqI9zoTVEO2iZ4lDXUUCs3emWY2i8CwxPWf+qMZ5/PuXzCCbk6+akjArKl3j3Ww==" />
+    <div class="form-inputs">
+      <div class="row">
+        <div class="col-md">
+          <div class="form-label-group date_range optional listened_search_listen_at">
+            <div class="input-group input-group-datepicker">
+              <input class="date_range optional form-control datepicker" type="text" name="listened_search[listen_at_from]" id="listened_search_listen_at_from" />
+              <div class="input-group-prepend for-datepicker">
+                <span class="input-group-text"><i class="material-icons">event</i></span>
+              </div>
+              <span class="input-group-prepend addon"><span class="input-group-text"><i class="material-icons">more_horiz</i></span></span>
+              <input class="date_range optional form-control datepicker" type="text" name="listened_search[listen_at_to]" id="listened_search_listen_at_to" />
+              <div class="input-group-prepend for-datepicker">
+                <span class="input-group-text"><i class="material-icons">event</i></span>
+              </div>
+            </div>
+            <label class="date_range optional" for="listened_search_listen_at">Listen at</label>
+          </div>
+        </div>
+<p>{{ message }}</p>
+        <div class="col-md">
+<div class="form-label-group select optional listened_search_spaces">
+<select class="form-control select optional form-control select2" name="listened_search[user]" id="listened_search_user">
+<option value="1">{{ message }}</option>
+<option value="2">利用者2</option>
+</select>
+<label class="control-label select optional" for="listened_search_user">User</label>
+          </div>
+        </div>
+
+      </div>
+      <div class="row">
+        <div class="col-md">
+<div class="form-label-group select optional listened_search_listen_words">
+<select class="form-control select optional form-control select2" multiple='multiple' name="listened_search[listen_words][]" id="listened_search_listen_words">
+<option value="3">訪問看護</option>
+<option value="4">血圧</option>
+</select>
+<label class="control-label select optional" for="listened_search_listen_words">Listen words</label>
+</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md">
+          <div class="form-label-group int_range optional listened_search_value"><div class="input-group"><input class="int_range optional form-control" type="text" name="listened_search[value_from]" id="listened_search_value_from" /><span class="input-group-prepend"><span class="input-group-text"><i class="material-icons">more_horiz</i></span></span><input class="int_range optional form-control" type="text" name="listened_search[value_to]" id="listened_search_value_to" /></div><label class="int_range optional" for="listened_search_value">Value</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions search d-flex justify-content-end">
+      <input type="submit" name="commit" value="検索" class="btn btn btn-primary col-md-3 col-sm-5" data-disable-with="登録する" />
+    </div>
+</form></div></div>
+
+<div class="card bg-light mb-3"><div class="card-body">
+  <div id="chart_div" class="img-fluid"></div>
+</div></div>
+
+<div class="row justify-content-around">
+  <a class="btn btn-info col-md-3 col-sm-5" href="/listeneds/new">新規作成</a>
+</div>
+
+</div><!-- /container -->
+
+<footer class="bg-dark fixed-bottom">
+<div class="container">
+<p class="text-right text-light mb-0">&copy; swan_match</p>
+</div>
+</footer>
+</body>
+</html>

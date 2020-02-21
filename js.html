@@ -1,0 +1,89 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script type="text/javascript">
+// corechartのパッケージをロード
+google.load(
+  "visualization",
+  "1",
+  {
+    packages: [
+      "corechart",
+      'timeline'
+    ]
+  }
+);
+google.setOnLoadCallback(main);
+
+  // userの選択肢の設定
+  //*TODO*//
+  // Vue.js
+  var app = new Vue({
+    el: '#app',
+    data: {
+      message: 'Hello GAS!'
+    }
+  });
+// 初期化
+function main() {
+  // datepicker、select2の初期化
+  $('.datepicker').datepicker({
+    format: 'yyyy/mm/dd',
+    language: 'ja',
+  });
+  $('.select2').select2();
+  
+  // カレンダーボタン
+  $('.for-datepicker').on('click', function() {
+    $(this).prev().focus();
+  });
+  
+  
+
+  // listen_wordの選択肢の設定
+  //*TODO*//
+  
+  
+  // グラフの初期描画
+  var sheet_id = '1422079612';
+  var sql = "SELECT B, H WHERE H IS NOT NULL AND F = 1 AND G LIKE '%25血圧%25'";
+  execSQL(sheet_id, sql);
+  
+  // グラフの再描画処理
+  //*TODO*//
+
+}
+
+
+// スプレッドシートにSQL発行するやーつ
+function execSQL(sheet_id, sql) {
+  // Variables
+  var ws_id = '15uqxj5YSYxbc-wK7hi-b65GrrT9n-0eJ8hNXfhBsiqE';
+
+  // The URL of the spreadsheet to source data from.
+  var url = 'https://docs.google.com/spreadsheets/d/'+ws_id+'/gviz/tq?gid='+sheet_id+'&tq='+sql;
+  var query = new google.visualization.Query(url);
+  query.send(draw);
+}
+
+//返り値を受けてグラフを描画するルーチン
+function draw(response) {
+  if (response.isError()) {
+    alert('Error in query');
+  }
+  //データテーブルに格納する
+  var data = response.getDataTable();
+  var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+  //グラフオプションの指定
+  var options = {
+    title: 'Aさんの血圧の推移',
+    curveType: 'function',
+    legend: {textStyle: {fontSize: 11}},
+    dataOpacity: '0.4',
+    hAxis: {title: '測定日時'},
+    vAxis: {title: '血圧'}
+  };
+
+  //グラフの描画
+  chart.draw(data, options);
+}
+</script>
