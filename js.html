@@ -5,53 +5,67 @@ google.load(
   "visualization",
   "1",
   {
-    packages: [
-      "corechart",
-      'timeline'
-    ]
+    packages: [ "corechart", 'timeline' ]
   }
 );
 google.setOnLoadCallback(main);
 
-  // userの選択肢の設定
-  //*TODO*//
-  // Vue.js
+// メイン
+function main() {
+  google.script.run.withSuccessHandler(function(data) {
+    initVue(data);
+    initPlugins();
+
+    // グラフの初期描画
+    //graphSQL();
+    // グラフの再描画処理
+    $('select,input').change(function(){
+      console.log($(this).val());
+      graphSQL();
+    });
+
+  }).setVueDatas();
+}
+
+// Vue.jsにわたすオブジェクトの生成
+function initVue(datas) {
   var app = new Vue({
     el: '#app',
-    data: {
-      message: 'Hello GAS!'
-    }
+    data: datas
   });
-// 初期化
-function main() {
-  // datepicker、select2の初期化
+}
+
+// datepickerとSelect2を初期化
+function initPlugins() {
   $('.datepicker').datepicker({
     format: 'yyyy/mm/dd',
     language: 'ja',
   });
   $('.select2').select2();
-  
+
   // カレンダーボタン
   $('.for-datepicker').on('click', function() {
     $(this).prev().focus();
   });
-  
-  
-
-  // listen_wordの選択肢の設定
-  //*TODO*//
-  
-  
-  // グラフの初期描画
-  var sheet_id = '1422079612';
-  var sql = "SELECT B, H WHERE H IS NOT NULL AND F = 1 AND G LIKE '%25血圧%25'";
-  execSQL(sheet_id, sql);
-  
-  // グラフの再描画処理
-  //*TODO*//
-
 }
 
+// グラフ発行するSQLを組み立てます
+function graphSQL() {
+  var sheet_id = '1422079612';
+  var user_id = $('#listened_search_user').val();
+  var words = $('#listened_search_listen_words').val();
+
+  // Users
+  var sql = "SELECT B, H WHERE H IS NOT NULL AND F = "+user_id;
+
+  // Listen words
+  for (let i = 0; i < words.length; i++) {
+    sql = sql + " AND G LIKE '%25"+words[i]+"%25'";
+  } 
+
+  console.log(sql);
+  execSQL(sheet_id, sql);
+}
 
 // スプレッドシートにSQL発行するやーつ
 function execSQL(sheet_id, sql) {
@@ -64,7 +78,7 @@ function execSQL(sheet_id, sql) {
   query.send(draw);
 }
 
-//返り値を受けてグラフを描画するルーチン
+// SQLの実行結果からグラフを描画するルーチン
 function draw(response) {
   if (response.isError()) {
     alert('Error in query');
@@ -74,13 +88,14 @@ function draw(response) {
   var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
   //グラフオプションの指定
+  var title = $('#listened_search_user>option:selected').text()+'さん '+$('#listened_search_listen_words>option:selected').text()+'の推移';
   var options = {
-    title: 'Aさんの血圧の推移',
+    title: title,
     curveType: 'function',
     legend: {textStyle: {fontSize: 11}},
     dataOpacity: '0.4',
     hAxis: {title: '測定日時'},
-    vAxis: {title: '血圧'}
+    vAxis: {title: $('#listened_search_listen_words>option:selected').text()}
   };
 
   //グラフの描画

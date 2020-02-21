@@ -19,7 +19,7 @@
   <?!= HtmlService.createHtmlOutputFromFile('css').getContent(); ?>
 </head>
 
-<body id="app">
+<body>
 
 <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
 <div class="container">
@@ -37,7 +37,7 @@
 </div>
 </nav>
 
-<div class="container">
+<div class="container" id="app">
 <h2>Solamimi</h2>
 
 <div class="card bg-light mb-3"><div class="card-body">
@@ -60,12 +60,10 @@
             <label class="date_range optional" for="listened_search_listen_at">Listen at</label>
           </div>
         </div>
-<p>{{ message }}</p>
         <div class="col-md">
 <div class="form-label-group select optional listened_search_spaces">
 <select class="form-control select optional form-control select2" name="listened_search[user]" id="listened_search_user">
-<option value="1">{{ message }}</option>
-<option value="2">利用者2</option>
+<option v-for="riyousha in riyoushas" v-bind:value="riyousha.id">{{ riyousha.name }}</option>
 </select>
 <label class="control-label select optional" for="listened_search_user">User</label>
           </div>
@@ -76,8 +74,7 @@
         <div class="col-md">
 <div class="form-label-group select optional listened_search_listen_words">
 <select class="form-control select optional form-control select2" multiple='multiple' name="listened_search[listen_words][]" id="listened_search_listen_words">
-<option value="3">訪問看護</option>
-<option value="4">血圧</option>
+  <option v-for="word in listen_words" v-bind:value="word">{{ word }}</option>
 </select>
 <label class="control-label select optional" for="listened_search_listen_words">Listen words</label>
 </div>
@@ -110,13 +107,6 @@
 </div>
 </footer>
 <script>
-    // Vue.js
-    var app = new Vue({
-    el: '#app',
-    data: {
-      message: 'Hello GAS!'
-    }
-  });
 
 </script>
 </body>
