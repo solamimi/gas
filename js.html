@@ -56,11 +56,11 @@ function graphSQL() {
   var words = $('#listened_search_listen_words').val();
 
   // Users
-  var sql = "SELECT B, H WHERE H IS NOT NULL AND F = "+user_id;
+  var sql = "SELECT A, E, F, G, H WHERE D IS NOT NULL AND B = "+user_id;
 
   // Listen words
   for (let i = 0; i < words.length; i++) {
-    sql = sql + " AND G LIKE '%25"+words[i]+"%25'";
+    sql = sql + " AND D LIKE '%25"+words[i]+"%25'";
   } 
 
   console.log(sql);
