@@ -5,7 +5,7 @@ google.load(
   "visualization",
   "1",
   {
-    packages: [ "corechart", 'timeline' ]
+    packages: [ "corechart", 'timeline', 'table' ]
   }
 );
 google.setOnLoadCallback(main);
@@ -13,15 +13,15 @@ google.setOnLoadCallback(main);
 // メイン
 function main() {
   google.script.run.withSuccessHandler(function(data) {
+
     initVue(data);
     initPlugins();
 
     // グラフの初期描画
-    //graphSQL();
+    initGraphs();
     // グラフの再描画処理
     $('select,input').change(function(){
-      console.log($(this).val());
-      graphSQL();
+      initGraphs();
     });
 
   }).setVueDatas();
@@ -38,7 +38,7 @@ function initVue(datas) {
 // datepickerとSelect2を初期化
 function initPlugins() {
   $('.datepicker').datepicker({
-    format: 'yyyy/mm/dd',
+    format: 'yyyy-mm-dd',
     language: 'ja',
   });
   $('.select2').select2();
@@ -49,37 +49,114 @@ function initPlugins() {
   });
 }
 
+// graphとテーブルの描画
+function initGraphs() {
+  var gsql = graphSQL();
+  var response = execSQL(gsql);
+  response.send(drawChart);
+  var tsql = tableSQL();
+  var response = execSQL(tsql);
+  response.send(drawTable);
+}
+
 // グラフ発行するSQLを組み立てます
 function graphSQL() {
-  var sheet_id = '1422079612';
+  var at_from = $('#listened_search_listen_at_from').val();
+  var at_to = $('#listened_search_listen_at_to').val();
   var user_id = $('#listened_search_user').val();
   var words = $('#listened_search_listen_words').val();
+  var value_from = $('#listened_search_value_from').val();
+  var value_to = $('#listened_search_value_to').val();
 
   // Users
-  var sql = "SELECT A, E, F, G, H WHERE D IS NOT NULL AND B = "+user_id;
+  var sql = "SELECT A, E, F, G, H WHERE E IS NOT NULL AND B = "+user_id;
+
+  // Listen_at_from
+  if(at_from !== '') {
+    sql = sql + " AND A >= timestamp '" + at_from + " 00:00:00'";
+  }
+  // Listen_at_to
+  if(at_to !== '') {
+    sql = sql + " AND A <= timestamp '" + at_to + " 23:59:59'";
+  }
 
   // Listen words
-  for (let i = 0; i < words.length; i++) {
+  for(let i = 0; i < words.length; i++) {
     sql = sql + " AND D LIKE '%25"+words[i]+"%25'";
   } 
 
+  // Value_from
+  value_cols = ['E','F','G','H']
+  if(value_from !== '') {
+    for(let i = 0; i < value_cols.length; i++) {
+      sql = sql + " AND "+value_cols[i]+" >= " + value_from;
+    }
+  }
+  // Value_to
+  if(value_to !== '') {
+    for(let i = 0; i < value_cols.length; i++) {
+      sql = sql + " AND "+value_cols[i]+" <= " + value_to;
+    }
+  }
+
   console.log(sql);
-  execSQL(sheet_id, sql);
+  return sql;
+}
+
+
+// グラフ発行するSQLを組み立てます
+function tableSQL() {
+  var at_from = $('#listened_search_listen_at_from').val();
+  var at_to = $('#listened_search_listen_at_to').val();
+  var user_id = $('#listened_search_user').val();
+  var words = $('#listened_search_listen_words').val();
+  var value_from = $('#listened_search_value_from').val();
+  var value_to = $('#listened_search_value_to').val();
+
+  // Users
+  var sql = "SELECT A, M, D, E, F, G, H WHERE B = "+user_id;
+
+  // Listen_at_from
+  if(at_from !== '') {
+    sql = sql + " AND A >= timestamp '" + at_from + " 00:00:00'";
+  }
+  // Listen_at_to
+  if(at_to !== '') {
+    sql = sql + " AND A <= timestamp '" + at_to + " 23:59:59'";
+  }
+
+  // Listen words
+  for(let i = 0; i < words.length; i++) {
+    sql = sql + " AND D LIKE '%25"+words[i]+"%25'";
+  } 
+
+  // Value_from
+  value_cols = ['E','F','G','H']
+  if(value_from !== '') {
+    for(let i = 0; i < value_cols.length; i++) {
+      sql = sql + " AND "+value_cols[i]+" >= " + value_from;
+    }
+  }
+  // Value_to
+  if(value_to !== '') {
+    for(let i = 0; i < value_cols.length; i++) {
+      sql = sql + " AND "+value_cols[i]+" <= " + value_to;
+    }
+  }
+
+  console.log(sql);
+  return sql;
 }
 
 // スプレッドシートにSQL発行するやーつ
-function execSQL(sheet_id, sql) {
-  // Variables
-  var ws_id = '15uqxj5YSYxbc-wK7hi-b65GrrT9n-0eJ8hNXfhBsiqE';
-
+function execSQL(sql, sheet_id = '1422079612', ws_id = '15uqxj5YSYxbc-wK7hi-b65GrrT9n-0eJ8hNXfhBsiqE') {
   // The URL of the spreadsheet to source data from.
   var url = 'https://docs.google.com/spreadsheets/d/'+ws_id+'/gviz/tq?gid='+sheet_id+'&tq='+sql;
-  var query = new google.visualization.Query(url);
-  query.send(draw);
+  return new google.visualization.Query(url);
 }
 
 // SQLの実行結果からグラフを描画するルーチン
-function draw(response) {
+function drawChart(response) {
   if (response.isError()) {
     alert('Error in query');
   }
@@ -100,5 +177,18 @@ function draw(response) {
 
   //グラフの描画
   chart.draw(data, options);
+}
+
+// SQLの実行結果からテーブルを描画するルーチン
+function drawTable(response) {
+  if (response.isError()) {
+    alert('Error in query');
+  }
+  //データテーブルに格納する
+  var data = response.getDataTable();
+  var table = new google.visualization.Table(document.getElementById('table_div'));
+
+  //グラフオプションの指定
+  table.draw(data, {showRowNumber: false, width: '100%', height: '100%'});
 }
 </script>

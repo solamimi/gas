@@ -1,8 +1,12 @@
+// 公開ページ描画処理
 function doGet(){
-  return HtmlService.createTemplateFromFile("index").evaluate();
+  var output = HtmlService.createTemplateFromFile("index").evaluate();
+  //output.setSandboxMode(HtmlService.SandboxMode.IFRAME)
+  output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return output
 }
 
-//クライアントにわたすデータの作成
+// クライアントにわたすデータの作成
 function setVueDatas() {
   var keyword_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Keywords");
   var words = keyword_sheet.getRange("A:A").getValues().flat();
@@ -31,7 +35,7 @@ function setVueDatas() {
   return data;
 }
 
-
+// HTTPPostでスプレッドシートにデータ追記するAPI
 function doPost(e){
 
 //  var sheet = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1n6JuemDoSar0rIGVcvtjcTa-L2Gs6wcolUios5CiWmo/edit#gid=0").getSheetByName("シート1");
@@ -50,11 +54,11 @@ function doPost(e){
 
   var array = [recode_date, record_user, record_type, record_type + " " + record_text, record_value1, record_value2, record_value3, record_value4, date];
   sheet.appendRow(array);
-    
+
   var output = ContentService.createTextOutput();
   output.setMimeType(ContentService.MimeType.JSON);
   output.setContent(JSON.stringify({ message: "success!" }));
- 
+
   return output;  
 
 }
