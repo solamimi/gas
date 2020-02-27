@@ -1,3 +1,4 @@
+// UnUsed!!
 function createChart() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Graph");
   var range = sheet.getRange("D:E");

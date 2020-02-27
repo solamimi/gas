@@ -15,10 +15,8 @@ function setVueDatas() {
 
   var user_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Users");
   var user_matrix = user_sheet.getRange("A:B").getValues();
-  // ヘッダー削除
-  user_matrix.shift();
   var user_obj = []
-  for (let i = 0; i < user_matrix.length; i++) {
+  for (let i = 1; i < user_matrix.length; i++) {
     user_obj.push(
       {
         id: user_matrix[i][0],
@@ -26,7 +24,6 @@ function setVueDatas() {
       }
     );
   }
-
 
   data = {
     riyoushas: user_obj,
