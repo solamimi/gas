@@ -90,15 +90,19 @@ function queryGenerater(type) {
   }
 
   // Listen words
-  for(let i = 0; i < words.length; i++) {
-    sql = sql + " AND D LIKE '%25"+words[i]+"%25'";
-  } 
+  if(words.length != 0) {
+    var likes = [];
+    for(let i = 0; i < words.length; i++) {
+      likes.push("D LIKE '%25"+words[i]+"%25'");
+    }
+    sql = sql + ' AND (' + likes.join(' OR ') + ')';
+  }
 
   // Value_from
   var value_cols = ['E','F','G','H'];
   if(value_from !== '') {
     for(let i = 0; i < value_cols.length; i++) {
-      sql = sql + " AND "+value_cols[i]+" >= " + value_from;
+      sql = sql + " AND ( "+value_cols[i]+" IS NULL OR "+value_cols[i]+" >= " + value_from + ')';
     }
   }
   // Value_to
@@ -126,7 +130,7 @@ function drawChart(response) {
   }
   //データテーブルに格納する
   var data = response.getDataTable();
-  var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+  var chart = new google.visualization.LineChart($('#chart_div')[0]);
 
   //グラフオプションの指定
   var title = $('#listened_search_user>option:selected').text()+'さん '+$('#listened_search_listen_words>option:selected').text()+'の推移';
@@ -150,7 +154,7 @@ function drawTable(response) {
   }
   //データテーブルに格納する
   var data = response.getDataTable();
-  var table = new google.visualization.Table(document.getElementById('table_div'));
+  var table = new google.visualization.Table($('#table_div')[0]);
 
   //グラフオプションの指定
   table.draw(data, {showRowNumber: false, width: '100%', height: '100%'});
